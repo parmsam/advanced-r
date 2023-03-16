@@ -1,0 +1,205 @@
+---
+title: "02-names-values"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# Useful functions
+
+```{r}
+lobstr::obj_addr()
+tracemem()
+lobstr::ref()
+lobstr::ref(character = TRUE)
+lobstr::obj_size()
+```
+
+# Exercises
+
+Given the following data frame, how do I create a new column called "3" that contains the sum of `1` and `2`? You may only use [`$`](https://rdrr.io/r/base/Extract.html), not [`[[`](https://rdrr.io/r/base/Extract.html). What makes `1`, `2`, and `3` challenging as variable names?
+
+```{r}
+df <- data.frame(runif(3), runif(3))
+names(df) <- c(1, 2)
+df$`3` <- df$`1` + df$`2`
+# print(df)
+```
+
+In the following code, how much memory does `y` occupy?
+
+```{r}
+x <- runif(1e6)
+y <- list(x, x, x)
+library(lobstr)
+lobstr::obj_size(x)
+```
+
+On which line does `a` get copied in the following example?
+
+```{r}
+a <- c(1, 5, 3, 2)
+b <- a
+b[[1]] <- 10 # copy on modify so this line
+```
+
+Explain the relationship between `a`, `b`, `c` and `d` in the following code:
+
+```{r}
+a <- 1:10
+b <- a
+c <- b 
+d <- 1:10
+obj_addr(a)
+obj_addr(b)
+obj_addr(c)
+obj_addr(d)
+# b and c point the original object 1:10
+# d points to a new object that also happens to be 1:10
+```
+
+The following code accesses the mean function in multiple ways. Do they all point to the same underlying function object? Verify this with [`lobstr::obj_addr()`](https://rdrr.io/pkg/lobstr/man/obj_addr.html).
+
+```{r}
+# yes, probably
+lobstr::obj_addr(mean)
+lobstr::obj_addr(base::mean)
+lobstr::obj_addr(get("mean"))
+lobstr::obj_addr(evalq(mean))
+lobstr::obj_addr(match.fun("mean"))
+# yes, confirmed
+```
+
+By default, base R data import functions, like [`read.csv()`](https://rdrr.io/r/utils/read.table.html), will automatically convert non-syntactic names to syntactic ones. Why might this be problematic? What option allows you to suppress this behaviour?
+
+This could be problematic b/c the names might be important to maintain for business lines in a database. The check.names argument can be used in `read.csv()` to supress behavior.
+
+What rules does [`make.names()`](https://rdrr.io/r/base/make.names.html) use to convert non-syntactic names into syntactic ones?
+
+"The character `"X"` is prepended if necessary. All invalid characters are translated to `"."`. A missing value is translated to `"NA"`. Names which match **R** keywords have a dot appended to them. Duplicated values are altered by [`make.unique`](http://127.0.0.1:63837/help/library/base/help/make.unique)."
+
+In other words, you can append one string at a time to a vector, making it unique each time, and get the same result as applying`make.unique` to all of the strings at once.
+
+I slightly simplified the rules that govern syntactic names. Why is `.123e1` not a syntactic name? Read [`?make.names`](https://rdrr.io/r/base/make.names.html) for the full details.
+
+"A syntactically valid name consists of letters, numbers and the dot or underline characters and starts with a letter or the dot not followed by a number." The example name starts with a dot which is not a syntactic name, thus it is non-syntactic.
+
+Why is [`tracemem(1:10)`](https://rdrr.io/r/base/tracemem.html) not useful?
+
+It might take up a spot in the memory when run, but there is not an name bound to that object.
+
+Explain why [`tracemem()`](https://rdrr.io/r/base/tracemem.html) shows two copies when you run this code. Hint: carefully look at the difference between this code and the code shown earlier in the section.
+
+```{r}
+x <- c(1L, 2L, 3L)
+tracemem(x)
+
+x[[3]] <- 4 # the is a copy on modify on this code
+# thus, tracemem() shows a second copy being created b/c of this modify step
+```
+
+Sketch out the relationship between the following objects:
+
+```{r}
+a <- 1:10
+b <- list(a, a)
+c <- list(b, a, 1:10)
+```
+
+What happens when you run this code?
+
+```{r}
+x <- list(1:10)
+x[[2]] <- x
+```
+
+Draw a picture.
+
+In the following example, why are [`object.size(y)`](https://rdrr.io/r/utils/object.size.html) and [`obj_size(y)`](https://rdrr.io/pkg/lobstr/man/obj_size.html) so radically different? Consult the documentation of [`object.size()`](https://rdrr.io/r/utils/object.size.html).
+
+```{r}
+y <- rep(list(runif(1e4)), 100)
+
+object.size(y)
+#> 8005648 bytes
+obj_size(y)
+#> 80,896 B
+# Compared to object.size(), obj_size():
+# Accounts for all types of shared values, not just strings in the global string pool.
+# 
+# Includes the size of environments (up to env)
+# 
+# Accurately measures the size of ALTREP objects.
+```
+
+Take the following list. Why is its size somewhat misleading?
+
+```{r}
+funs <- list(mean, sd, var)
+obj_size(funs)
+#> 17,608 B
+# It doesnt match what we would expect for each object size individually summed up. Some object(s) are likely sharing values.
+```
+
+Predict the output of the following code:
+
+```{r}
+a <- runif(1e6)
+obj_size(a) #8MB
+
+b <- list(a, a)
+obj_size(b) #8MB
+obj_size(a, b) #8MB
+
+b[[1]][[1]] <- 10
+obj_size(b) #16MB
+obj_size(a, b) # 16MB
+
+b[[2]][[1]] <- 10
+obj_size(b) # 16MB
+obj_size(a, b) # 24MB
+```
+
+Explain why the following code doesn't create a circular list.
+
+```{r}
+x <- list()
+obj_addr(x)
+tracemem(x)
+x[[1]] <- x # there's a copy-on modify action here, creating a new copy
+obj_addr(x) # as supported by diff mem address here
+obj_addr(x[[1]]) # the original object is bound to 1st position of this new object
+```
+
+Wrap the two methods for subtracting medians into two functions, then use the 'bench' package^17^ to carefully compare their speeds. How does performance change as the number of columns increase?
+
+```{r}
+library(bench)
+# not sure what is being asked for here
+```
+
+What happens if you attempt to use [`tracemem()`](https://rdrr.io/r/base/tracemem.html) on an environment?
+
+```{r}
+e1 <- rlang::env(a = 1, b = 2, c = 3)
+tracemem(e1) # we get an error if we try to use it on an environment. Not useful b/c environments are already modified in place.
+e2 <- e1
+```
+
+# Playground
+
+```{r}
+f <- function(a) {
+  a[[1]] <- 2
+}
+
+x <- c(1, 2, 3)
+cat(tracemem(x), "\n")
+#> <0x7fe1121693a8>
+
+z <- f(x)
+# there's no copy here!
+
+untracemem(x)
+```
