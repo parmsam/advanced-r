@@ -6,6 +6,8 @@ editor_options:
   chunk_output_type: console
 ---
 
+# General
+
 # Useful functions
 
 ```{r}
@@ -16,16 +18,15 @@ editor_options:
 
 What is the result of subsetting a vector with positive integers, negative integers, a logical vector, or a character vector?
 
-What’s the difference between [, [[, and $ when applied to a list?
+What's the difference between \[, \[\[, and \$ when applied to a list?
 
 When should you use drop = FALSE?
 
-If x is a matrix, what does x[] <- 0 do? How is it different from x <- 0?
+If x is a matrix, what does x\[\] \<- 0 do? How is it different from x \<- 0?
 
 How can you use a named vector to relabel categorical variables?
 
 Fix each of the following common data frame subsetting errors:
-
 
 ```{r}
 mtcars[mtcars$cyl = 4, ]
@@ -34,7 +35,8 @@ mtcars[mtcars$cyl <= 5]
 mtcars[mtcars$cyl == 4 | 6, ]
 ```
 
-Why does the following code yield five missing values? (Hint: why is it different from x[NA_real_]?)
+Why does the following code yield five missing values? (Hint: why is it different from x\[NA_real\_\]?)
+
 ```{r}
 x <- 1:5
 x[NA]
@@ -48,15 +50,15 @@ x <- outer(1:5, 1:5, FUN = "*")
 x[upper.tri(x)]
 ```
 
-Why does mtcars[1:20] return an error? How does it differ from the similar mtcars[1:20, ]?
+Why does mtcars\[1:20\] return an error? How does it differ from the similar mtcars\[1:20, \]?
 
 Implement your own function that extracts the diagonal entries from a matrix (it should behave like diag(x) where x is a matrix).
 
-What does df[is.na(df)] <- 0 do? How does it work?
+What does df\[is.na(df)\] \<- 0 do? How does it work?
 
 Brainstorm as many ways as possible to extract the third value from the cyl variable in the mtcars dataset.
 
-Given a linear model, e.g., mod <- lm(mpg ~ wt, data = mtcars), extract the residual degrees of freedom. Then extract the R squared from the model summary (summary(mod))
+Given a linear model, e.g., mod \<- lm(mpg \~ wt, data = mtcars), extract the residual degrees of freedom. Then extract the R squared from the model summary (summary(mod))
 
 How would you randomly permute the columns of a data frame? (This is an important technique in random forests.) Can you simultaneously permute the rows and columns in one step?
 

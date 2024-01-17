@@ -6,12 +6,16 @@ editor_options:
   chunk_output_type: console
 ---
 
+# General
+
 # Useful functions
+
 ```{r}
 
 ```
 
 # Exercises
+
 What are the four common types of atomic vectors? What are the two rare types?
 
 What are attributes? How do you get them and set them?
@@ -21,6 +25,7 @@ How is a list different from an atomic vector? How is a matrix different from a 
 Can you have a list that is a matrix? Can a data frame have a column that is a matrix?
 
 How do tibbles behave differently from data frames?
+
 ```{r}
 ?tibble()
 # tibble() constructs a data frame. It is used like base::data.frame(), but with a couple notable differences:
@@ -43,6 +48,7 @@ How do tibbles behave differently from data frames?
 ```
 
 How do you create raw and complex scalars? (See ?raw and ?complex.)
+
 ```{r}
 as.raw(55) # use raw to create a raw scalar which is a pair of hex digits, as long as they are between 0 and 255
 complex(length.out = 0, real = numeric(), imaginary = numeric(),
@@ -50,20 +56,23 @@ complex(length.out = 0, real = numeric(), imaginary = numeric(),
 ```
 
 Test your knowledge of the vector coercion rules by predicting the output of the following uses of c():
+
 ```{r}
 c(1, FALSE) # 1 0
 c("a", 1) # "a" "1"
 c(TRUE, 1L) # 1 1 
 ```
 
-Why is 1 == "1" true? Why is -1 < FALSE true? Why is "one" < 2 false?
+Why is 1 == "1" true? Why is -1 \< FALSE true? Why is "one" \< 2 false?
+
 ```{r}
 1 == "1" # 1 is coerced to "1" which matches "1"
 -1 < FALSE # is true b/c FALSE is coerced to 0
 "one" < 2 # is false b/c 2 is coerced to "2" and "2" and "one" must have a higher ASCII or UTF-8 code than "2"
 ```
 
-Why is the default missing value, NA, a logical vector? What’s special about logical vectors? (Hint: think about c(FALSE, NA_character_).)
+Why is the default missing value, NA, a logical vector? What's special about logical vectors? (Hint: think about c(FALSE, NA_character\_).)
+
 ```{r}
 # there are different atomic types for NA, the default one is logical.
 # logical vectors are coerced into logical states in vectors
@@ -71,23 +80,27 @@ Why is the default missing value, NA, a logical vector? What’s special about l
 ```
 
 Precisely what do is.atomic(), is.numeric(), and is.vector() test for?
+
 ```{r}
 # is the object an atomic type, numeric type, and vector
 ```
 
 How is setNames() implemented? How is unname() implemented? Read the source code.
+
 ```{r}
 print(setNames) #setNames() uses names() on an object
 print(unname) #unname() is more complicated and sets the names and dimnames as null if either of them are not null already
 ```
 
 What does dim() return when applied to a 1-dimensional vector? When might you use NROW() or NCOL()?
+
 ```{r}
 dim(c(1,2,23)) #returns NULL
 # use nrow() or ncol() on an array of more than one dimension
 ```
 
 How would you describe the following three objects? What makes them different from 1:5?
+
 ```{r}
 x1 <- array(1:5, c(1, 1, 5)) # array with 1 row, 1 col, and 5 dim
 x2 <- array(1:5, c(1, 5, 1)) # array with 1 row, 5 col, and 1 dim
@@ -95,16 +108,18 @@ x3 <- array(1:5, c(5, 1, 1)) # array with 5 row, 1 col, and 1 dim
 ```
 
 An early draft used this code to illustrate structure():
+
 ```{r}
 structure(1:5, comment = "my attribute")
 #> [1] 1 2 3 4 5
 ```
-But when you print that object you don’t see the comment attribute. Why? Is the attribute missing, or is there something else special about it? (Hint: try using help.)
+
+But when you print that object you don't see the comment attribute. Why? Is the attribute missing, or is there something else special about it? (Hint: try using help.)
 
 ```{r}
 # that is a comment attribute. Contrary to other attributes, it is not printed. Asigning null removes the comment.
 ```
- 
+
 What sort of object does table() return? What is its type? What attributes does it have? How does the dimensionality change as you tabulate more variables?
 
 ```{r}
@@ -112,6 +127,7 @@ What sort of object does table() return? What is its type? What attributes does 
 ```
 
 What happens to a factor when you modify its levels?
+
 ```{r}
 f1 <- factor(letters)
 levels(f1) <- rev(levels(f1))
@@ -120,6 +136,7 @@ levels(f1) <- rev(levels(f1))
 ```
 
 What does this code do? How do f2 and f3 differ from f1?
+
 ```{r}
 f2 <- rev(factor(letters))
 # values are reversed and levels are correct
@@ -128,12 +145,14 @@ f3 <- factor(letters, levels = rev(letters))
 ```
 
 List all the ways that a list differs from an atomic vector.
+
 ```{r}
 # atomic vector is of a single type, while a list can collect many different types
 # a list can be made up of atomic vectors and even other lists
 ```
 
-Why do you need to use unlist() to convert a list to an atomic vector? Why doesn’t as.vector() work?
+Why do you need to use unlist() to convert a list to an atomic vector? Why doesn't as.vector() work?
+
 ```{r}
 # a list is a recursive vector already which is why as.vector doesnt quite work
 # can see this via `is.vector()`
@@ -141,11 +160,13 @@ is.vector(list(x=1:5))
 ```
 
 Compare and contrast c() and unlist() when combining a date and date-time into a single vector.
+
 ```{r}
 c(as.date(123))
 ```
 
 Can you have a data frame with zero rows? What about zero columns?
+
 ```{r}
 #yes, yes
 x <- data.frame()
@@ -154,6 +175,7 @@ data.frame(row.names = c("a","b","c"))
 ```
 
 What happens if you attempt to set rownames that are not unique?
+
 ```{r}
 x <- data.frame(x=1:5)
 row.names(x) <- rep("1", 5)
@@ -161,6 +183,7 @@ row.names(x) <- rep("1", 5)
 ```
 
 If df is a data frame, what can you say about t(df), and t(t(df))? Perform some experiments, making sure to try different column types.
+
 ```{r}
 df <- data.frame(x=1:5)
 t(df) #returns a matrix version of the dataframe named df
@@ -168,6 +191,7 @@ t(t(df)) # return a tranposed matrix
 ```
 
 What does as.matrix() do when applied to a data frame with columns of different types? How does it differ from data.matrix()?
+
 ```{r}
 as.matrix(data.frame(x = 1:5, y = letters[1:5], z = as.factor(1:5) ))
 # every value is a character type in the matrix
@@ -176,4 +200,3 @@ data.matrix(data.frame(x = 1:5, y = letters[1:5], z = as.factor(1:5) ))
 ```
 
 # Playground
-
