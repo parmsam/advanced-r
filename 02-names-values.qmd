@@ -3,10 +3,103 @@ title: "02-names-values"
 format: html
 editor: visual
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 # General
+
+## Binding
+
+-   The assignment arrow creates a binding from the name on the left hand-side to the right hand-side object.
+
+    -   `lobstr::obj_addr()` is useful way to access the object's identifier.
+
+-   syntactic names must consist of letters, digits, ., and \_ but not starting with \_ or a digit.
+
+## Copy on modify
+
+-   R objects are unchangeable or immutable. Changes to object copy the original objects.
+
+```{r}
+x <- c(1, 2, 3)
+y <- x
+  
+y[[3]] <- 4
+x
+#> [1] 1 2 3
+#> 
+```
+
+-   This concepts also applies to object passed through functions
+
+```{r}
+library(lobstr)
+f <- function(x){
+  x
+}
+a <- c(1,2,3, 1)
+z <- f(a)
+lobstr::obj_addr(a) == lobstr::obj_addr(z)
+```
+
+-   Lists just store references to values, however the copy on modify that they create is a **shallow copy**. This has important implication on dataframes which are simply a list of column vectors all of same size.
+
+```{r}
+a1 <- list(1,2,3,1)
+lobstr::ref(a1)
+a2 <- a1
+a2[[3]] <- 4
+lobstr::ref(a2)
+```
+
+-   For strings, R uses a **global string pool.** This is where each element of a character vector is a pointer to a unique string in the pool. This is useful b/c it saves memory, similar to the other
+
+```{r}
+x <- c("a", "a", "abc", "d")
+lobstr::ref(x, character = T)
+```
+
+-   On the topic of object size, elements of lists are references to values, so the memory size might be smaller than you'd expect
+
+```{r}
+x <- runif(1e6)
+obj_size(x)
+#> 8,000,048 B
+
+y <- list(x, x, x)
+obj_size(y)
+#> 8,000,128 B
+```
+
+## Modified in place
+
+-   Environments on the other hand are modified in place. This is useful to create functions that remember state. It's used to implement the R6 OOP system. Environments can even contain themselves.
+
+```{r}
+e1 <- rlang::env(a=1, b=2, c=3)
+e2 <- e1
+e2$c <- 4
+e1$c
+
+```
+
+## Garbage collecting
+
+-   The GC or garbage collector automatically removes objects. R uses a tracing GC. Meaning it traces every object and reachable object from the global environment. It runs automatically when R needs more memory.
+
+# Concepts
+
+-   syntactic names
+
+-   reserved words
+
+-   shallow copy
+
+-   global string pool
+
+-   modified in place
+
+-   garbage collector
 
 # Useful functions
 
