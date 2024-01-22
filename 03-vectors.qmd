@@ -8,6 +8,98 @@ editor_options:
 
 # General
 
+## Intro to Vectors in R
+
+-   Comes in two flavors: atomic vectors and lists
+
+    -   For atomic vectors, all elements should have the same type
+
+    -   For lists, on the other hand, elements can have different types.
+
+-   Every vector can have attributes which are commonly the dimension and class attributes. The class attribute powers the S3 object system.
+
+## More on Atomic Vectors
+
+-   4 main types include logical, integer, double, and character.
+
+![](images/summary-tree-atomic.png){width="355"}
+
+## Missing values
+
+-   Missing values are represented by NA
+
+-   Technically there are four missing values, one for each of the atomic types: NA, NA_integer\_, NA_real\_, and NA_character\_ for logical, integer, double, and character respectively.
+
+## Testing and Coercion
+
+-   Vectors can be tested using the `is.*()` family of functions and coerced via the `as.*()` family of functions.
+
+## Attributes
+
+-   can be retrieved and set via `attr()` or `attributes()` and `structure()`. Most attributes are temporary and lost by most operations. Two that are routinely preserved are names and dim.
+
+## S3 atomic vectors
+
+-   Every S3 object is built on top of a base type
+
+-   Four important S3 vectors in base R are factors, dates, POSIXct, and difftime vectors.
+
+![](images/summary-tree-s3-1.png){width="345"}
+
+## Date times
+
+-   Base R provides two ways of storing date time formats. POSIX is a family of cross-platform standards.
+
+    -   POSIXct - Portable operating system calendar time
+
+    -   POSIXlt - Portable operating system local time
+
+## Durations
+
+-   represent amount of time between paris of dates or date-times
+
+-   Stored in difftime objects
+
+## Lists
+
+-   each element can be any type, not just vectors
+
+-   Each element is a reference to another object of any type
+
+-   A list can even contain another list, which is why they're called recursive vectors sometimes
+
+-   You can combine several lists into one using `c()`
+
+## Data frames and tibbles
+
+-   Two most important S3 vectors built on top of lists are dataframes and tibbles. This supports the importance of eventually learning S3 object oriented system.
+-   a dataframe is a list with a length constraint on each of its vectors, where they have to be the same size.
+-   a tibble is a modern reimagining of the dataframe. They do less and complain more. They're a modern version of dataframes.
+    -   for example data frames auto transform non-syntactic names while tibbles don't. Also, by default, dataframes automatically coerce strings to factors by default. Lastly, there dataframes automatically recycle columns that are an integer multiple of the longest column while tibbles only recycle vectors of length one.
+-   Rownames should best be avoided b/c they're not metadata but important key dataframe data for rows. Tibbles don't support row names.
+
+![](images/summary-tree-s3-2.png)
+
+## NULL
+
+-   NULL is another type of object similar to vectors that serves asthe role of a zero length vector. It is not a vector.
+-   NULL is special because it has a unique type, is always length zero, and can't have any attributes.
+
+# Concepts
+
+-   atomic vectors
+-   missing values
+-   testing
+-   coercion
+-   attributes
+-   S3 atomic vectors
+-   date times
+-   durations
+-   lists
+-   data frames
+-   tibbles
+-   NULL
+
 # Useful functions
 
 ```{r}
