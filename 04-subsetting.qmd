@@ -24,6 +24,14 @@ editor_options:
 
 -   **Character vectors** return elements with matching names
 
+    -   Character matching is a powerful way to create lookup tables.
+
+        ```{r}
+        x <- c("m", "f", "u", "f", "f", "m", "m")
+        lookup <- c(m = "Male", f = "Female", u = NA)
+        lookup[x]
+        ```
+
 ## Subsetting data frames
 
 -   When subsetting with a single index, they behave like lists and index the columns.
@@ -41,9 +49,39 @@ tibble::tibble(iris)["Species"] |>
 
     -   However, be aware that \$ does left to right partial matching
 
+## Subassignment
+
+-   All subsetting operators can be combined with assignment to modify selected values of an input vector: this is called **subassignment**
+
+-   You can assign `NULL` to remove a component or use `list(NULL)` to add a literal `NULL`
+
+```{r}
+x <- 1:5
+x[c(1, 2)] <- c(101, 102)
+x
+```
+
 ## Concepts
 
--   
+-   subsetting atomic vectors
+
+    -   positive integers
+
+    -   negative integers
+
+    -   logical vectors
+
+        -   recycling rules
+
+    -   nothing
+
+    -   zero
+
+    -   character vectors
+
+-   subsetting data frames
+
+-   subassignment
 
 -   \$ shorthand operator
 
