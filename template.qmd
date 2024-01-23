@@ -8,6 +8,8 @@ editor_options:
 
 # General
 
+# Concepts
+
 # Useful functions
 
 ```{r}

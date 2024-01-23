@@ -1,0 +1,207 @@
+---
+title: "06-functions"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+## Function fundamentals
+
+-   R **functions have three components**: **arguments** (accessible via `formals()`), **body** (accessible via `body()`), and **environment** (accessible via `environment()`).
+
+-   **Functions are objects** just like vectors are objects. Thereby, they can also have any number of attributes. `scref` being a common attribute for source code reference for the function.
+
+## Anonymous function
+
+-   An **anonymous function** is a function without a name
+
+-   R functions often called **closures**. This reflects the fact that R functions capture or enclose their environments.
+
+## Function composition
+
+-   An R pipe `%>%` is pronounced "and then". The style of piping is common in Haskell and F# which is the main inspiration for magrittr.
+
+-   It is common in data analysis code, where the analysis consists of a sequence of transformations on an object.
+
+## Lexical scoping
+
+-   **Scoping** is the act of finding the value associated with the name.
+
+-   R uses **lexical scoping** where it looks up values of names based on how a function is defined (not how it's called).
+
+### Name masking
+
+-   Names defined inside a function mask names defined outside a function.
+
+-   If a name isn't defined inside a function, R looks one level up.
+
+### A fresh start
+
+-   Every time a function is called a **new environment is created** to host its execution.
+
+-   A function has no way to tell what happened the last time it was run; each invocation is completely independent. However, there are ways to get around that.
+
+### Dynamic lookup
+
+-   R looks for values when the function is run, not when the function is created.
+
+## Lazy evaluation
+
+-   Function arguments are lazily evaluation. Meaning they are only evaluated if accessed.
+
+```{r}
+h01 <- function(x) {
+  10
+}
+h01(stop("This is an error!"))
+```
+
+### Promises
+
+-   Powers lazy evaluation. A promise is a special data structure. It has three components: an expression, environment, and value.
+
+-   The value is computed and cached the frist time a promise is accessed. This is also when the expression is evaluated in that environment.
+
+-   Promises cannot be manipulated within R code.
+
+## Default argumetns
+
+-   Lazy eval is also what enables default arguments to be defined in terms of other arguments even for those later defined in the function. This design pattern is not recommended, since it make the code harder to follow.
+
+```{r}
+h04 <- function(
+    x = 1,
+    y = x * 2,
+    z = a + b) {
+  a <- 10
+  b <- 100
+  c(x, y, z)
+} 
+h04()
+```
+
+## Missing arguments
+
+`missing()` can be used to determine within a function if an arguments value comes from the user or from a default. This is usually not recommended. A NULL default is better to indicate an argument is not required but can still be supplied.
+
+```{r}
+h06 <- function(x = 10) {
+  list(missing(x), x)
+}
+str(h06())
+str(h06(10))
+```
+
+## Dot dot dot argument
+
+-   `…` is pronounced dot-dot-dot. It is used to get a function to take in any number of arguments. In other languages, this is often called varargs (short for variable arguments).
+
+-   A special form is `..N` that allows you to refer to elements of `…` by position. Or `list(…)` within the function body to store the arguments as a list.
+
+-   However, note that using `…` means that misspelled argument won't raise an error.
+
+```{r}
+i01 <- function(y, z) {
+  list(y = y, z = z)
+}
+i02 <- function(x, ...) {
+  i01(...)
+}
+
+str(i02(x = 1, y = 2, z = 3))
+i03 <- function(...) {
+  list(first = ..1, third = ..3)
+}
+str(i03(1, 2, 3))
+i04 <- function(...) {
+  list(...)
+}
+str(i04(a = 1, b = 2))
+```
+
+## Function exits
+
+-   implicit returns where the last evaluated expression is the return value. This happens even if the last expression is just and assignment.
+
+-   Explicitly by calling `return().`
+
+-   Most functions return visibly, but `invisible()` can prevent automatic printing. When using it, you can verify the value does exist by wrapping the function with parentheses or `print()`. `<-` for example returns invisibly. This is why the last assignment is also a form of an implicit return.
+
+## Errors and exit handlers
+
+-   If a function can't complete it's task, it should throw an error with `stop()` . This indicates something has gone wrong and forces the user to deal with it.
+-   Exit handlers are run when a function exits, regardless of the function running normally or with an error. They're specified using `on.exit()` .
+    -   It's useful b/c it gives you a place to put clean-up code next to the code that requires clean up.
+
+    -   Also, when coupled with lazy eval, it provides a nice pattern for running code in an altered environment.
+
+        ```{r}
+        with_dir <- function(dir, code) {
+          old <- setwd(dir)
+          on.exit(setwd(old), add = TRUE)
+          force(code)
+        }
+        getwd()
+        with_dir("~", getwd())
+        ```
+
+Note that `setwd()` invisibly returns the current directory before the change.
+
+## Function forms
+
+-   Functions come in four different forms:
+
+    -   prefix - name comes before its arguments, like `foofy(a, b, c)`.
+
+    -   infix - comes in between its arguments, like `x + y`. Infix forms are used for many mathematical operators.
+
+    -   replacement - replace values by assignment. `names(df) <- c("a", "b", "c")`
+
+    -   special - functions like [`[[`](https://rdrr.io/r/base/Extract.html), `if`, and `for`
+
+# Concepts
+
+-   anonymous functions
+
+-   lexical scoping
+
+    -   name masking, fresh start, dynamic lookup
+
+-   lazy evaluation
+
+    -   promises
+
+-   default arguments
+
+-   missing arguments
+
+-   dot-dot-dot arguments
+
+-   function exits
+
+-   errors
+
+-   exit handlers
+
+-   function forms
+
+    -   prefix, infix, replacement, special
+
+# Useful functions
+
+```{r}
+f02 <- function(x, y) {
+  # A comment
+  x + y
+}
+
+formals(f02)
+body(f02)
+environment(f02)
+attributes(f02)
+```
+
+# Exercises
