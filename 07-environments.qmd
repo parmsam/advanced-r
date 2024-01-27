@@ -1,0 +1,110 @@
+---
+title: "07-environments"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+## Environment
+
+-   An **environment** is the data structure that powers scoping in R. The job of it is to associate or **bind** a set of names to a set of values.
+
+    -   It is basically a bag of names with no implied order.
+
+-   Use `rlang::env()` to create an environment. The function works like a list which takes a set of name-value pairs.
+
+-   However, unlike most R objects, they are modified in place instead of copy on modify. And they can contain themselves.
+
+## Parents
+
+-   Every environment has a **parent**. It enables lexical scoping: if a name isn't found in an environment will look in its parent and so on.
+-   The ancestors of every environment will eventually terminate with the empty environment.
+-   Use `parent.env()` to find the parent of an environment
+
+## Super assignment
+
+-   **Regular assignment**, `<-`, always creates a variable in the current environment.
+
+-   **Super assignment**, `<<-`, never creates a variable in the current environment, but instead modifies an existing variable found in a parent environment.
+
+-   However, be aware that it will create a variable in the global environment if it doesn't an existing variable. `<<-` is most often used in conjunction with a function factory.
+
+## Package environments
+
+-   Each package attached by `library()` becomes one of the parents of the global environment. The immediate parent is the last package you attached with the parent of that package being the second to last package attached.
+
+-   In other words, when attaching a package, the parent environment of the global environment changes.
+
+-   Following the order of attached packages is known as the **search path.**
+
+```{r}
+search() # shows names of environments in the search path
+search_envs() # shows environments in the search path
+```
+
+## Function environments
+
+-   A function binds the current environment when it's created. This is called the **function environment**. This is commonly called a closure in other languages. It is the default for functions in R.
+
+```{r}
+y <- 1
+f <- \(x) x + y
+rlang::fn_env(f)
+environment(f)
+e <- rlang::env()
+e$g <- function() 1
+```
+
+## Namespaces
+
+-   Namespaces help to make sure a package will find the right functions regardless of what packages are attached by the user. This ensures that every package works the same way regardless of the other attached user packages.
+
+-   Every function is associated with a package environment AND a namespace environment.
+
+    -   The package environment is the external interface of the package. It powers finding a function in an attached package and the use of `::` on packages.
+
+    -   The namespace environment is the internal interface. It controls how we fund the function. In other words, the namespace controls how the function finds its variables.
+
+        -   Some bindings only occur in the namespace environment. These are called **internal or non-exported** **objects**. It enables developers to high implementation details from users.
+
+## Namespace environments
+
+-   Each namespace has an **imports** environment. It contains all the functions used by the package which are controlled by the package developer with the `NAMESPACE` file.
+
+-   The parent of this **imports** environment is the base **namespace**. This imports every base function.
+
+-   Finally, the parent of the **imports** environment is the global environment.
+
+## Execution environments
+
+-   Functions follow the **fresh start principle.** This means that each time a function is called a new environment is created to host execution. This is called the **execution environment**.
+
+-   It's parents is the function environment.
+
+-   It is ephemeral, meaning that once the function is done running, the environment is garbage collected.
+
+```{r}
+plus <- function(x){
+  function(y) x + y
+}
+plus_one <- plus(1)
+plus_one(2)
+plus_one(11)
+```
+
+## Call stacks
+
+-   The **caller environment** provides the environment from which the function is called.
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises
