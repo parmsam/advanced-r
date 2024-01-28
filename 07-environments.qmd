@@ -97,7 +97,17 @@ plus_one(11)
 
 ## Call stacks
 
--   The **caller environment** provides the environment from which the function is called.
+-   The **caller environment** provides the environment from which the function is called. It varies based on how the function is called, not how it is created.
+-   The **call stack** is made up of **frames**. The way you most commonly see a call stack in R is by looking at the [`traceback()`](https://rdrr.io/r/base/traceback.html) after an error has occurred. You can also use [`lobstr::cst()`](https://rdrr.io/pkg/lobstr/man/cst.html) to print out the **c**all **s**tack **t**ree.
+    -   Each element of the call stack is a frame. A frame has an expression, environment, and parent.
+
+## Environments as data structures
+
+-   Useful for avoiding large copies of data.
+
+-   Also great for managing function state within a package.
+
+-   Also useful for creating hashmaps. A **hashmap** is a data structure that takes constant, O(1), time to find an object based on its name
 
 # Concepts
 
