@@ -1,0 +1,37 @@
+---
+title: "08-conditions"
+format: html
+editor: visual
+---
+
+# General
+
+## Condition system
+
+-   The condition system provides tools for a function author to show that something unusual is going on.
+
+-   It signals conditions using functions like `stop()`, `warning()`, and `message()`. These signal errors, warnings, and messages, respectively.
+
+## Errors
+
+-   The best error messages tell you what is wrong and point you in the right direction to fix the problem.
+
+## Warnings
+
+-   Warnings signal that something has gone wrong, but the code has been able to recover and continue.
+
+-   Good messages are a balancing act: you want to provide just enough information so the user knows what\'s going on, but not so much that they\'re overwhelmed.
+
+## Messages
+
+-   Messages are informational. They're used to tell the user that you\'ve done something on their behalf.
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises
