@@ -26,6 +26,12 @@ editor: visual
 
 -   Messages are informational. They're used to tell the user that you\'ve done something on their behalf.
 
+## Handlers
+
+-   **Handlers** allow us to temporarily override or supplement the default behaviour of conditions.
+
+-   Every condition has default behaviour: errors stop execution and return to the top level, warnings are captured and displayed in aggregate, and messages are immediately displayed
+
 # Concepts
 
 # Useful functions
