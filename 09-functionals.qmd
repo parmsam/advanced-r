@@ -156,6 +156,30 @@ str(discard(df, is.factor))
 
 -   There are even predicate variants of `map()` like `map_if()` and `modify_if()`.
 
+```{r}
+df <- data.frame(
+  num1 = c(0, 10, 20),
+  num2 = c(5, 6, 7),
+  chr1 = c("a", "b", "c"),
+  stringsAsFactors = FALSE
+)
+
+str(map_if(df, is.numeric, mean))
+#> List of 3
+#>  $ num1: num 10
+#>  $ num2: num 6
+#>  $ chr1: chr [1:3] "a" "b" "c"
+str(modify_if(df, is.numeric, mean))
+#> 'data.frame':    3 obs. of  3 variables:
+#>  $ num1: num  10 10 10
+#>  $ num2: num  6 6 6
+#>  $ chr1: chr  "a" "b" "c"
+str(map(keep(df, is.numeric), mean))
+#> List of 2
+#>  $ num1: num 10
+#>  $ num2: num 6
+```
+
 # Concepts
 
 # Useful functions
