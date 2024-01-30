@@ -3,7 +3,7 @@ title: "09-functionals"
 format: html
 editor: visual
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 # General
@@ -21,15 +21,140 @@ editor_options:
 
 -   A functional takes a function as an input and returns a vector as an output.
 
--   They're useful a for-loop replacement such as `lapply()`, or `purrr::map()`.
+-   They're useful a for-loop replacement such as `lapply()`, or `purrr::map()`. Both return a list.
 
 ```{r}
+library(purrr)
 randomise <- function(f) f(runif(1e3))
 randomise(mean)
 
 triple <- function(x) x * 3
 map(1:3, triple)
 ```
+
+-   Alternatively, there is the `map_*()` family of function with the `lgl`, `int`, `dbl`, and `chr` suffixes that return an atomic vector of the specified type. This is similar to `vapply()`
+
+## Anonymous functions
+
+-   You can also create an inline anonymous function on the `map()` or `map_*()` family of functions.
+
+```{r}
+map_dbl(mtcars, function(x) length(unique(x)))
+```
+
+-   The shortcut for anonymous function in purrr is `~f(.x)` . Where `~` is known as a twiddle. You can use `.x` and `.y` for two argument functions and `..1`, `..2`, `..3`, etc. for functions of an arbitrary number of arguments.
+
+```{r}
+map_dbl(mtcars, ~length(unique(.x)))
+```
+
+-   Good rule of thumb is that if your function spans lines or uses `{}`, it\'s time to give it a name.
+
+## Passing arguments with `…`
+
+-   You can pass additional arguments to the function you're calling in map.
+
+```{r}
+
+x <- list(1:5, c(1:10, NA))
+map_dbl(x, ~mean(.x, na.rm = TRUE))
+```
+
+-   That works b/c the map functions pass `…` along.
+
+![](images/map-arg.png){width="355"}
+
+-   It's recommended that users pass the full argument names in code when using map function arguments.
+
+-   Alternatively, you can vary the argument by using anymous function
+
+```{r}
+trims <- c(0, 0.1, 0.2, 0.5)
+x <- rcauchy(1000)
+map_dbl(trims, function(trim) mean(x, trim = trim))
+```
+
+## Map variants
+
+-   Output same type as input with [`modify()`](https://purrr.tidyverse.org/reference/modify.html)
+
+    -   If you want to keep the output as a data frame, you can use [`modify()`](https://purrr.tidyverse.org/reference/modify.html), which always returns the same type of output as the input.
+
+        ```{r}
+        df <- data.frame(
+          x = 1:3,
+          y = 6:4
+        )
+        modify(df, ~ .x * 2)
+        ```
+
+-   Iterate over two inputs with [`map2()`](https://purrr.tidyverse.org/reference/map2.html).
+
+-   Iterate with an index using [`imap()`](https://purrr.tidyverse.org/reference/imap.html)
+
+-   Return nothing with [`walk()`](https://purrr.tidyverse.org/reference/map.html).
+
+-   Iterate over any number of inputs with [`pmap()`](https://purrr.tidyverse.org/reference/map2.html).
+
+## Reduce
+
+-   [`reduce()`](https://purrr.tidyverse.org/reference/reduce.html) takes a vector of length *`n`* and produces a vector of length 1 by calling a function with a pair of values at a time
+
+    -   `reduce(1:4, f)` is equivalent to `f(f(f(1, 2), 3), 4)`
+
+-   It's a useful way to generalise a function that works with two inputs (a binary function) to work with any number of inputs.
+
+```{r}
+# Imagine you have a list of numeric vectors, and you want to find the values that occur in every element
+l <- map(1:4, ~ sample(1:10, 15, replace = T))
+reduce(l, intersect)
+```
+
+![](images/reduce-arg.png){width="356"}
+
+-   Optionally, you can pass arguments through the function.
+
+-   `accumulate()` instead of returning just the final result also returns all the intermediate results. The `.init` argument is useful to supply a first value that starts the accumulation instead of using `.x[[1]]`.
+
+```{r}
+x <- c(4, 3, 10)
+reduce(x, `+`)
+#> [1] 17
+
+accumulate(x, `+`)
+#> [1]  4  7 17
+```
+
+## Map reduce
+
+-   Map-reduce is a map combined with a reduce.
+
+-   The difference for large data is that the data is spread over multiple computers. Each computer performs the map on the data that it has, then it sends the result to back to a coordinator which *reduces* the individual results back to a single result.
+
+## Predicates
+
+-   A predicate is a function that returns a single `TRUE` or `FALSE`. We say a predicate matches a vector if it returns `TRUE`. Examples are `is.character()`, `is.null()`, or `all()`
+
+-   Predicate functionals apply a predicate to each element of a vector. Examples in purrr are `some()`, `every()`, and `none()`.
+
+-   `detect()` returns the value of the first match, and `detect_index()` returns the location of the first match. `keep()` keeps all the matching elements and `discard()` drops all matching elements.
+
+```{r}
+df <- data.frame(x = 1:3, y = c("a", "b", "c"))
+detect(df, is.factor)
+#> NULL
+detect_index(df, is.factor)
+#> [1] 0
+
+str(keep(df, is.factor))
+#> 'data.frame':    3 obs. of  0 variables
+str(discard(df, is.factor))
+#> 'data.frame':    3 obs. of  2 variables:
+#>  $ x: int  1 2 3
+#>  $ y: chr  "a" "b" "c"
+```
+
+-   There are even predicate variants of `map()` like `map_if()` and `modify_if()`.
 
 # Concepts
 
