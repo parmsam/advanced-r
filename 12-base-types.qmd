@@ -1,0 +1,27 @@
+---
+title: "12-base-types"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+-   As John Chambers said, Everything that exists in R is an object.
+
+-   To tell the difference between a base and OO object, use [`is.object()`](https://rdrr.io/r/base/is.object.html) or [`sloop::otype()`](https://sloop.r-lib.org/reference/otype.html). The difference between base and OO objects is that OO objects have a \"class\" attribute. Every object has a base type.
+
+-   There are 25 different base types. They are added very rarely.
+
+![](images/oo-venn.png){width="262"}
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises
