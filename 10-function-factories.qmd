@@ -1,0 +1,65 @@
+---
+title: "02-names-values"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+## Function factories
+
+- A **function factory** is a function that makes functions.
+- Function that are produced from a function factory are called **manufactured functions**.
+  - The key idea that makes them work is the enclosing environment of the manufactured function is an execution environment of the function factory.
+- We can see the environment using `rlang::env_print()` and extract values from the environment using `rlang::fn_env()`
+
+```{r}
+power1 <- function(exp) {
+  function(x) {
+    x ^ exp
+  }
+}
+
+square <- power1(2)
+cube <- power1(3)
+
+square
+cube
+
+square(3)
+#> [1] 9
+cube(3)
+#> [1] 27
+
+env_print(square)
+#> <environment: 0x7fe851f7ccc0>
+#> parent: <environment: global>
+#> bindings:
+#>  * exp: <dbl>
+
+env_print(cube)
+#> <environment: 0x7fe85508c390>
+#> parent: <environment: global>
+#> bindings:
+#>  * exp: <dbl>
+
+fn_env(square)$exp
+#> [1] 2
+
+fn_env(cube)$exp
+#> [1] 3
+```
+
+
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises
