@@ -10,12 +10,13 @@ editor_options:
 
 ## Function factories
 
-- A **function factory** is a function that makes functions.
-- Function that are produced from a function factory are called **manufactured functions**.
-  - The key idea that makes them work is the enclosing environment of the manufactured function is an execution environment of the function factory.
-- We can see the environment using `rlang::env_print()` and extract values from the environment using `rlang::fn_env()`
+-   A **function factory** is a function that makes functions.
+-   Function that are produced from a function factory are called **manufactured functions**.
+    -   The key idea that makes them work is the enclosing environment of the manufactured function is an execution environment of the function factory.
+-   We can see the environment using `rlang::env_print()` and extract values from the environment using `rlang::fn_env()`
 
 ```{r}
+library(rlang)
 power1 <- function(exp) {
   function(x) {
     x ^ exp
@@ -52,7 +53,61 @@ fn_env(cube)$exp
 #> [1] 3
 ```
 
+### Forcing evaluation
 
+```{r}
+x <- 2
+square <- power1(x)
+x <- 3
+square(2)
+```
+
+-   `force()` can be used to force the evaluation of an argument.
+
+```{r}
+power2 <- function(exp) {
+  force(exp)
+  function(x) {
+    x ^ exp
+  }
+}
+
+x <- 2
+square <- power2(x)
+x <- 3
+square(2)
+#> [1] 4
+```
+
+-   *Whenever you create a function factory, make sure every argument is evaluated, using force() as necessary if the argument is only used by the manufactured function.*
+
+## Stateful functions
+
+-   Function factories allow you to maintain state across function invocations.
+-  This is possible because the environment of the manufactured function is unique and constant AND R has a **super assignment operator** (`<<-`) which modifies bindings in the enclosing environment.
+- This operator rebinds an existing name found in a parent environment.
+
+```{r}
+new_counter <- function() {
+  i <- 0
+  
+  function() {
+    i <<- i + 1
+    i
+  }
+}
+
+counter_one <- new_counter()
+counter_two <- new_counter()
+counter_one()
+#> [1] 1
+counter_one()
+#> [1] 2
+counter_two()
+#> [1] 1
+```
+
+- Stateful functions are best used in moderation. As soon as your function starts managing the state of multiple variables, it’s better to switch to R6.
 
 # Concepts
 
