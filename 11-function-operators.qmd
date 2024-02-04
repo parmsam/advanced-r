@@ -1,0 +1,158 @@
+---
+title: "11-function-operators"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+## Function operators
+
+- **Function operators** take one or more functions as input and return a new function. Decorators is just another name for function operators which is what they are called in Python.
+  - They can be thought of as just a function factory that takes a function as input. 
+  - They're typically paired with functionals. 
+
+```{r}
+chatty <- function(f) {
+  force(f)
+  
+  function(x, ...) {
+    res <- f(x, ...)
+    cat("Processing ", x, "\n", sep = "")
+    res
+  }
+}
+f <- function(x) x ^ 2
+s <- c(3, 2, 1)
+
+purrr::map_dbl(s, chatty(f))
+#> Processing 3
+#> Processing 2
+#> Processing 1
+#> [1] 9 4 1
+```
+
+## Existing function operators
+
+- `purrr::safely()` provides a way to access results and errors in a function.
+  - `safely()` always returns a list with two elements, result and error. If the function runs successfully, error is NULL and result contains the result; if the function fails, result is NULL and error contains the error.
+
+```{r}
+x <- list(
+  c(0.512, 0.165, 0.717),
+  c(0.064, 0.781, 0.427),
+  c(0.890, 0.785, 0.495),
+  "oops"
+)
+
+out <- rep(NA_real_, length(x))
+for (i in seq_along(x)) {
+  out[[i]] <- sum(x[[i]])
+}
+safe_sum <- safely(sum)
+safe_sum
+#> function (...) 
+#> capture_error(.f(...), otherwise, quiet)
+#> <bytecode: 0x7fafd9e2de58>
+#> <environment: 0x7fafd9e2d9c0>
+str(safe_sum(x[[1]]))
+#> List of 2
+#>  $ result: num 1.39
+#>  $ error : NULL
+str(safe_sum(x[[4]]))
+#> List of 2
+#>  $ result: NULL
+#>  $ error :List of 2
+#>   ..$ message: chr "invalid 'type' (character) of argument"
+#>   ..$ call   : language .Primitive("sum")(..., na.rm = na.rm)
+#>   ..- attr(*, "class")= chr [1:3] "simpleError" "error" "condition"
+```
+
+### Other purrr function operators
+
+- `auto_browser()`: automatically executes browser() inside the function when there’s an error.
+
+## Memoise cached computations
+
+- `memoise::memoise()` memoises a function, meaning that the function will remember previous inputs and return cached results. This means it runs much faster but uses more memory.
+- A relatively realistic use of memoisation is computing the Fibonacci series. This is because future calls can rely on previous computations
+
+```{r}
+fib <- function(n) {
+  if (n < 2) return(1)
+  fib(n - 2) + fib(n - 1)
+}
+system.time(fib(23))
+#>    user  system elapsed 
+#>   0.049   0.002   0.050
+system.time(fib(24))
+#>    user  system elapsed 
+#>   0.069   0.002   0.070
+fib2 <- memoise::memoise(function(n) {
+  if (n < 2) return(1)
+  fib2(n - 2) + fib2(n - 1)
+})
+system.time(fib2(23))
+#>    user  system elapsed 
+#>   0.009   0.000   0.008
+```
+
+## Interesting use case to download files
+
+```{r eval = FALSE}
+delay_by <- function(f, amount) {
+  force(f)
+  force(amount)
+  
+  function(...) {
+    Sys.sleep(amount)
+    f(...)
+  }
+}
+system.time(runif(100))
+#>    user  system elapsed 
+#>       0       0       0
+system.time(delay_by(runif, 0.1)(100))
+#>    user  system elapsed 
+#>    0.00    0.00    0.13
+
+dot_every <- function(f, n) {
+  force(f)
+  force(n)
+  
+  i <- 0
+  function(...) {
+    i <<- i + 1
+    if (i %% n == 0) cat(".")
+    f(...)
+  }
+}
+walk(1:100, runif)
+walk(1:100, dot_every(runif, 10))
+#> ..........
+
+urls <- c(
+  "adv-r" = "https://adv-r.hadley.nz", 
+  "r4ds" = "http://r4ds.had.co.nz/"
+  # and many many more
+)
+path <- paste(tempdir(), names(urls), ".html")
+
+walk2(
+  urls, path, 
+  download.file %>% dot_every(10) %>% delay_by(0.1), 
+  quiet = TRUE
+)
+```
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises
