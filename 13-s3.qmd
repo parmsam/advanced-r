@@ -3,10 +3,58 @@ title: "13-S3"
 format: html
 editor: visual
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 # General
+
+## S3 101
+
+-   **S3** is informal and ad hoc. Clases are implemented using attributes.
+    -   See [03-vectors.qmd](03-vectors.qmd) for basics of attributes.
+-   An S3 object is a base type with at least a `class` attribute.
+-   A **generic function** (aka a generic) defines the interface. It uses a different interface depending on the `class` of an argument. A popular example of a generic is `print()`.
+    -   A generic can be thought of as a middleman whose job is to define the interface and find the right implementation for the job. The implementation for a specific class is the method and the process the generic tasks to find the method is called **method dispatch**.
+-   S3 methods follow a special naming scheme of `generic.class()`. For example, the factor method for the `print()` generic is called `print.factor()`. Don't call the method directly, let the generic find it for you. They're usually not exported meaning they just live inside the package and aren't available from the global environment.
+
+## Making an S3 object
+
+-   When using a class in a package, it's recommended to include the package name in the class name. This is to ensure it doesn't clash with a class defined by another package.
+
+```{r}
+# Create and assign class in one step
+x <- structure(list(), class = "my_class")
+
+# Create, then set class
+x <- list()
+class(x) <- "my_class"
+# Determine the class of an S3 object
+class(x)
+#> [1] "my_class"
+inherits(x, "my_class")
+#> [1] TRUE
+inherits(x, "your_class")
+#> [1] FALSE
+```
+
+-   Be aware that you can change the class of S3 objects.
+
+```{r}
+# Create a linear model
+mod <- lm(log(mpg) ~ log(disp), data = mtcars)
+class(mod)
+#> [1] "lm"
+print(mod)
+# Turn it into a date (?!)
+class(mod) <- "Date"
+# Unsurprisingly this doesn't work very well
+print(mod)
+#> Error in as.POSIXlt.Date(x): 'list' object cannot be coerced to type 'double'
+```
+
+-   Use a low level **constructor** that creates new object (`new_*()`)with the correct structure, a **validator** (`validate_*()`) that performs checks to ensure the object has the correct values, and a **helper** that provides a way for others to create objects of your class.
+
+### Constructor
 
 -   
 
