@@ -1,0 +1,245 @@
+---
+title: "14-R7"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+## R6 101
+- Methods belong to objects not generics. They are called like `object$method()`.
+- R6 objects are mutable, meaning they're modified in place (not copied on modify) and have reference semantics.
+
+## Using R6
+- R6 only needs a single function call to create both the class and its methods. You use `R6::R6Class()` for this. 
+  - The first argument is classname and must have UpperCamelCase names.
+  - The second argument is public. It supplies a list of methods (functions) and fields (anything else) that make up the public interface of the object. Methods and fields must use snake_case. Methods can access the methods and fields of the current object via `self$`.
+- You construct a new object from the class by calling the `new()` method
+- Side-effect R6 methods should always return self invisibly. This allows us to chain together multiple method calls. This technique is called **method chaining** and is commonly used in languages like Python and JavaScript.
+
+```{r}
+library(R6)
+Accumulator <- R6Class("Accumulator", list(
+  sum = 0,
+  add = function(x = 1) {
+    self$sum <- self$sum + x 
+    invisible(self)
+  })
+)
+x <- Accumulator$new() 
+x$sum
+x$add(4) 
+x$sum
+#> [1] 4
+x$add(5)$add(10)
+x$sum
+#> [1] 19
+```
+
+### Other important methods
+
+- `$initialize()` overrides the default behaviour of `$new()`. It helps us to define rules for initializing values in the object.
+
+```{r}
+Person <- R6Class("Person", list(
+  name = NULL,
+  age = NA,
+  initialize = function(name, age = NA) {
+    stopifnot(is.character(name), length(name) == 1)
+    stopifnot(is.numeric(age), length(age) == 1)
+    
+    self$name <- name
+    self$age <- age
+  }
+))
+
+hadley <- Person$new("Hadley", age = "thirty-eight")
+#> Error in initialize(...): is.numeric(age) is not TRUE
+
+hadley <- Person$new("Hadley", age = 38)
+```
+
+- More expensive validation requirements are implemented in a separate `$validate()` and only called when needed.
+
+- `$print()` allows you to override the default printing behaviour. As with any R6 method called for its side effects, `$print()` should return `invisible(self)`.
+
+```{r}
+Person <- R6Class("Person", list(
+  name = NULL,
+  age = NA,
+  initialize = function(name, age = NA) {
+    self$name <- name
+    self$age <- age
+  },
+  print = function(...) {
+    cat("Person: \n")
+    cat("  Name: ", self$name, "\n", sep = "")
+    cat("  Age:  ", self$age, "\n", sep = "")
+    invisible(self)
+  }
+))
+
+hadley2 <- Person$new("Hadley")
+hadley2
+#> Person: 
+#>   Name: Hadley
+#>   Age:  NA
+```
+
+### Adding methods after creation
+
+- It’s also possible to modify the fields and methods of an existing class.
+- Add new elements to an existing class with `$set()`, supplying the visibility, the name, and the component
+- New methods and fields are only available to new objects. They are not retrospectively added to existing objects.
+
+```{r}
+Accumulator <- R6Class("Accumulator")
+Accumulator$set("public", "sum", 0)
+Accumulator$set("public", "add", function(x = 1) {
+  self$sum <- self$sum + x 
+  invisible(self)
+})
+```
+
+### Inheritance
+
+- You can inherit behaviour from an existing class by providing the class object to the `inherit` argument.
+
+```{r}
+AccumulatorChatty <- R6Class("AccumulatorChatty", 
+  inherit = Accumulator,
+  public = list(
+    add = function(x = 1) {
+      cat("Adding ", x, "\n", sep = "")
+      super$add(x = x)
+    }
+  )
+)
+
+x2 <- AccumulatorChatty$new()
+x2$add(10)$add(1)$sum
+#> Adding 10
+#> Adding 1
+#> [1] 11
+```
+
+
+### Privacy
+
+- **Private** fields and methods are elements that can only be accessed from within the class, not from the outside.
+- The `private` argument to R6Class works in the same way as the public argument.
+- Fields and methods in private are available within the methods using `private$` instead of `self$`. However, you can't access them outside of the class.
+
+```{r}
+Person <- R6Class("Person", 
+  public = list(
+    initialize = function(name, age = NA) {
+      private$name <- name
+      private$age <- age
+    },
+    print = function(...) {
+      cat("Person: \n")
+      cat("  Name: ", private$name, "\n", sep = "")
+      cat("  Age:  ", private$age, "\n", sep = "")
+    }
+  ),
+  private = list(
+    age = NA,
+    name = NULL
+  )
+)
+
+hadley3 <- Person$new("Hadley")
+hadley3
+#> Person: 
+#>   Name: Hadley
+#>   Age:  NA
+hadley3$name
+#> NULL
+```
+
+
+### Active fields
+
+- **Active fields** allow you to define components that look like fields from the outside. However, they are defined with functions, like methods.
+
+```{r}
+Rando <- R6::R6Class("Rando", active = list(
+  random = function(value) {
+    if (missing(value)) {
+      runif(1)  
+    } else {
+      stop("Can't set `$random`", call. = FALSE)
+    }
+  }
+))
+x <- Rando$new()
+x$random
+#> [1] 0.0808
+x$random
+#> [1] 0.834
+x$random
+#> [1] 0.601
+x$random <- 5
+#> Error: Can't set `$random`
+```
+
+
+### Reference semantics
+
+- Reference semantics means that R6 objects are not copied when modified.
+- We need to use `$clone()` if we want a copy.
+
+```{r}
+y1 <- Accumulator$new() 
+y2 <- y1
+
+y1$add(10)
+c(y1 = y1$sum, y2 = y2$sum)
+#> y1 y2 
+#> 10 10
+y2 <- y1$clone()
+
+y1$add(10)
+c(y1 = y1$sum, y2 = y2$sum)
+#> y1 y2 
+#> 10  0
+```
+
+### Finalizers
+
+- Finalizers usually play a similar role to `on.exit()`, cleaning up any resources created by the initializer.
+- It will be run when the object is deleted (or more precisely, by the first garbage collection after the object has been unbound from all names) or when R exits.
+
+```{r}
+TemporaryFile <- R6Class("TemporaryFile", list(
+  path = NULL,
+  initialize = function() {
+    self$path <- tempfile()
+  },
+  finalize = function() {
+    message("Cleaning up ", self$path)
+    unlink(self$path)
+  }
+))
+```
+
+```{r}
+tf <- TemporaryFile$new()
+rm(tf)
+#> Cleaning up /tmp/Rtmpk73JdI/file155f31d8424bd
+```
+
+
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises
