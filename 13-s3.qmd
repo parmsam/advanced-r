@@ -56,7 +56,102 @@ print(mod)
 
 ### Constructor
 
--   
+-   Call them using `new_*()`. 
+- Have one argument for the base object and one for each attribute.
+- Check the type of the base object and types of each attributes.
+- It helps the developer.
+
+```{r}
+new_Date <- function(x = double()) {
+  # notice how it is called new_Date and the argument is x
+  stopifnot(is.double(x))
+  # above is the check on base type
+  structure(x, class = "Date")
+  # above is the class attribute
+}
+
+new_Date(c(-1, 0, 1))
+#> [1] "1969-12-31" "1970-01-01" "1970-01-02"
+```
+
+### Validator
+
+- Complicated classes require complicated checks. Instead of complicating the constructor, this is where the validator comes in. 
+- It is a separate function that checks the object for correctness.
+- It's also re-usable.
+
+```{r}
+validate_factor <- function(x) {
+  values <- unclass(x)
+  levels <- attr(x, "levels")
+
+  if (!all(!is.na(values) & values > 0)) {
+    stop(
+      "All `x` values must be non-missing and greater than zero",
+      call. = FALSE
+    )
+  }
+
+  if (length(levels) < max(values)) {
+    stop(
+      "There must be at least as many `levels` as possible values in `x`",
+      call. = FALSE
+    )
+  }
+
+  x
+}
+
+validate_factor(new_factor(1:5, "a"))
+#> Error: There must be at least as many `levels` as possible values in `x`
+validate_factor(new_factor(0:1, "a"))
+#> Error: All `x` values must be non-missing and greater than zero
+```
+
+### Helper
+
+-   It's a function that creates objects of your class. 
+- It should have the same name as the class.
+- Finish by calling the constructor, and the validator if necessary.
+- Create carefully crafted error messages tailored towards an end-user
+- Have a thoughtfully crafted user interface with carefully chosen default values and useful conversions. After all, tt’s not the job of the constructor to be flexible, but that's where the helper comes in.
+
+```{r}
+difftime <- function(x = double(), units = "secs") {
+  x <- as.double(x)
+  new_difftime(x, units = units)
+}
+
+difftime(1:10)
+#> Time differences in secs
+#>  [1]  1  2  3  4  5  6  7  8  9 10
+```
+
+## S3 generic
+
+- The job of a generic is to perform method dispatch. It's the middleman that finds the right implementation for a class.
+- It is performed by `UseMethod()` which takes the name of the generic function (required) and the argument to use for method dispatch (optional).
+
+```{r}
+my_new_generic <- function(x) {
+  UseMethod("my_new_generic")
+}
+```
+
+## How `UseMethod()` works?
+
+- It creates a vector of method names, as seen in `paste0("generic", ".", c(class(x), "default"))`, and then looks for each potential method in turn
+- The default class is a pseudo class that is always found last. It's a catch-all for when no other method is found.
+
+```{r}
+x <- Sys.Date()
+sloop::s3_dispatch(print(x))
+```
+
+## Creating new methods
+
+- You should only ever write a method if you own the generic or the class.
+- It must have the same arguments as its generic. This is enforced in packages by `R CMD check`.
 
 # Useful functions
 
