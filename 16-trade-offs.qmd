@@ -1,0 +1,26 @@
+---
+title: "16-trade-offs"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+## Recommendations
+- Default to S3 b/c it's simple and widely used in Base R and CRAN.
+- If you have a prior background in programming, resist the temptation to use R6 b/c it's easy to create a non-idiomatic API with alot of pain points. Also, you'll lose out on a new way of thinking about OOP.
+
+## S3 vs R6
+- See [Ch16](https://adv-r.hadley.nz/oo-tradeoffs.html).
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises
