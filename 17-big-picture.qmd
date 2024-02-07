@@ -9,14 +9,16 @@ editor_options:
 # General
 
 ## Metaprogramming
-- The idea behind metaprogramming is that code can be inspected and programmatically modified.
-- Tidy evaluation (aka tidyeval) is implemented via the rlang package.
+
+-   The idea behind **metaprogramming** is that code can be inspected and programmatically modified.
+-   Tidy evaluation (aka **tidyeval**) is implemented via the rlang package.
 
 ## Code is data
-- You can capture code and compute on it just like any other type of data.
-- `rlang::expr()` can help you capture code. It returns exactly what you put into it.
-  - The captured code is an expression which is a collective term for a call, symbol, constant or pairlist.
-- `rlang::enexpr()` helps capture this from within a function b/c `expr()` won't work. In the example below, `capture_it()` automatically quotes its first argument. 
+
+-   You can capture code and compute on it just like any other type of data.
+-   `rlang::expr()` can help you capture code. It returns exactly what you put into it.
+    -   The captured code is an expression which is a collective term for a call, symbol, constant or pairlist.
+-   `rlang::enexpr()` helps capture this from within a function b/c `expr()` won't work. In the example below, `capture_it()` automatically quotes its first argument.
 
 ```{r}
 library(rlang)
@@ -34,9 +36,9 @@ capture_it(a + b + c)
 
 ## Code as a tree
 
-- Almost every programming languages uses code as a tree. This is often called the **abstract syntrax tree** (aka AST). R is nice b/c you can view and edit this tree.
-- Use `lobstr::ast()` to see this tree-like structure. 
-- Every R expression can be viewed this way
+-   Almost every programming languages uses code as a tree. This is often called the **abstract syntrax tree** (aka AST). R is nice b/c you can view and edit this tree.
+-   Use `lobstr::ast()` to see this tree-like structure.
+-   Every R expression can be viewed this way
 
 ```{r}
 library(lobstr)
@@ -47,7 +49,7 @@ lobstr::ast(1 + 2 * 3)
 
 ## Code to generate code
 
-- `rlang::call2()` constructs a function call from the function to call and argument to call it with. 
+-   `rlang::call2()` constructs a function call from the function to call and argument to call it with.
 
 ```{r}
 call2("f", 1,2,3)
@@ -56,8 +58,8 @@ call2("+", 1, call2("*", 2, 3))
 
 ### Unquoting
 
-- An alternative is building complex code trees by combining simple code trees with a template. `expr()` and `enexpr()` have support for this via `!!` (aka bang-bang) which is the **unquote operator**.
-  - Use of `!!` inserts the code tree into the expression in the example below.
+-   An alternative is building complex code trees by combining simple code trees with a template. `expr()` and `enexpr()` have support for this via `!!` (aka bang-bang) which is the **unquote operator**.
+    -   Use of `!!` inserts the code tree into the expression in the example below.
 
 ```{r}
 # using the unquote operator
@@ -68,8 +70,8 @@ expr(!!xx / !!yy)
 #> (x + x)/(y + y)
 ```
 
-- Unquoting is very useful when used in a function definition. First you use `enexpr()` since it's inside a function. Then you use `!!` with `expr()`.
-- Since it even deals with wierd variables names, that's another reason to use this approach instead of `paste()` driven approach since that opens you up to injection attacks.
+-   Unquoting is very useful when used in a function definition. First you use `enexpr()` since it's inside a function. Then you use `!!` with `expr()`.
+-   Since it even deals with wierd variables names, that's another reason to use this approach instead of `paste()` driven approach since that opens you up to injection attacks.
 
 ```{r}
 cv <- function(var) {
@@ -83,8 +85,8 @@ cv(x + y)
 
 ## Evaluating expressions
 
-- You can evaluation an expression using `base::eval()`. However, this requires an envrinoment where you tell R what the symbols in the expression mean.
-- As expected, the main function takes an expression and an environment.
+-   You can evaluation an expression using `base::eval()`. However, this requires an environment where you tell R what the symbols in the expression mean.
+-   As expected, the main function takes an expression and an environment.
 
 ```{r}
 eval(expr(x + y), env(x = 1, y = 10))
@@ -96,8 +98,8 @@ eval(expr(x + y))
 #> [1] 110
 ```
 
-- You can also also bind names to functions, allowing you to override the behaviour of existing functions.
-  - dplyr uses this to generate SQL code for execution in a remote database.
+-   You can also also bind names to functions, allowing you to override the behavior of existing functions.
+    -   dplyr uses this to generate SQL code for execution in a remote database.
 
 ```{r}
 string_math <- function(x) {
@@ -119,7 +121,7 @@ string_math(("x" * 2 + "-y") * 3)
 
 ## Evaluation with data
 
-- `eval_tidy()` also takes a data mask, which is typically a data frame
+-   `eval_tidy()` also takes a data mask, which is typically a data frame
 
 ```{r}
 df <- data.frame(x = 1:5, y = sample(5))
@@ -135,9 +137,9 @@ with2(df, x + y)
 
 ## Quosures
 
-- A problem arises when we need to evaluate a captured epression in the environment where it was written. 
-- That's where quosures come into play. Quosures bundle an expression with and environment. `eval_tidy()` can work with quosures.
- - Whenever using a data mask, always use `enquo()` instead of `enexpr()`.
+-   A problem arises when we need to evaluate a captured epression in the environment where it was written.
+-   That's where quosures come into play. **Quosures** bundle an expression with and environment. `eval_tidy()` can work with quosures.
+-   Whenever using a data mask, always use `enquo()` instead of `enexpr()`.
 
 ```{r}
 with2 <- function(df, expr) {
