@@ -61,6 +61,13 @@ sym("x")
   - This happens automatically when you print an expression
   - You can get the string with `rlang::expr_text()`
 
+## Specialized data structures
+
+- Pairlists are a special type of list that are used to represent function arguments.
+  - They are a linked list of cons cells, where each cell contains a value and a pointer to the next cell.
+- Missing arguments are another special type of object that are used to represent missing arguments in a function call.
+  - They are a special type of symbol that is used to represent missing arguments in a function call.
+- Expression vectors are just a list of expressions.
 
 # Concepts
 
