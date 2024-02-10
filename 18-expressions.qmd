@@ -1,0 +1,73 @@
+---
+title: "02-names-values"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+## Expressions
+
+- `rlang::expr()` captures the intent of the code without executing it. An expression is an object that captures the structure of the code without evaluating.
+- You can evaluate it with `base::eval()`.
+
+## Abstract Syntax Trees
+- Expressions are also called **abstract syntax trees (ASTs)**. 
+- This is because the structure of code is hierarchical and can be naturally represented as a tree.
+
+```{r}
+z <- rlang::expr(y <- x * 10)
+z
+#> y <- x * 10
+lobstr::ast(f(x, "y", 1))
+#> █─f 
+#> ├─x 
+#> ├─"y" 
+#> └─1
+lobstr::ast(y <- x * 10)
+#> █─`<-` 
+#> ├─y 
+#> └─█─`*` 
+#>   ├─x 
+#>   └─10
+```
+
+## Expressions continued
+
+- An expression is any member of the set of base types created by parsing code: constant scalars, symbols, call objects, and pairlists.
+  - Scalar constants are either NULL or a length-1 atomic vector (or scalar, Section 3.2.1) like `TRUE`, `1L`, `2.5` or `"x"`
+  - Symbol represents the name of an object like x, mtcars, or mean. In base R, the terms symbol and name are used interchangeably
+  - Call objects represent captured function calls. They are a special type of list, where the first component specifies the function to call (usually a symbol), and the remaining elements are the arguments for that call. Thereby, call objects are subsettable, similar to lists. They can also be modified like lists.
+  - 
+
+
+```{r}
+identical(expr(TRUE), TRUE)
+identical(expr(1), 1)
+identical(expr(2L), 2L)
+identical(expr("x"), "x")
+
+expr(x)
+sym("x")
+```
+
+## Parsing
+
+- Parsing is the process a language takes on a string and constructs and expression. It is governed by a set of rules called a grammar.
+- If you find yourself working with strings containing code very frequently, you should reconsider your process.  Use expression with quasiquotation instead.
+- The inverse of parsing is deparsing: given an expression, you want the string that would generate it.
+  - This happens automatically when you print an expression
+  - You can get the string with `rlang::expr_text()`
+
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises
