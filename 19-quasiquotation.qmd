@@ -1,0 +1,19 @@
+---
+title: "19-quasiquotation"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises

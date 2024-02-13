@@ -1,0 +1,75 @@
+---
+title: "22-debugging"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+## Overall debugging approach
+
+-   **Google it** - Whenever you see an error message, start by googling it
+
+-   **Make it repeatable** - Start by creating a reproducible example and create an automated test case
+
+-   **Figure out where it is** - follow a systematic approach - adopt the scientific method: Generate hypotheses, design experiments to test them, and record your results
+
+-   **Fix it and test it -** Once again make sure you have automated testing in place after fixing it.
+
+## Locating errors
+
+-   [`traceback()`](https://rdrr.io/r/base/traceback.html), which shows you the sequence of calls (also known as the call stack, Section [7.5](#0)) that lead to the error.
+
+-   RStudio does this by default for
+
+## Interactive debugger
+
+-   The **interactive debugger** which allows you to pause execution of a function and interactively explore its state.
+
+-   Easiest way to enter the interactive debugger is through RStudio\'s \"**Rerun with Debug**\" tool.
+
+-   Otherwise, you can insert a call to `browser()` where you want to pause, and re-run the function.
+
+## Alternatives to browser()
+
+-   Setting **breakpoints** in RStudio, `options(error = recover)`, and `debug()` and other related functions.
+
+    -   In RStudio, you can set a breakpoint by clicking to the left of the line number, or pressing `Shift + F9` .
+
+    -   Another way to activate [`browser()`](https://rdrr.io/r/base/browser.html) is to use [`options(error = recover)`](https://rdrr.io/r/base/options.html). Now when you get an error, you\'ll get an interactive prompt that displays the traceback and gives you the ability to interactively debug inside any of the frames.
+
+    -   [`debug()`](https://rdrr.io/r/base/debug.html) inserts a browser statement in the first line of the specified function. [`undebug()`](https://rdrr.io/r/base/debug.html) removes it. Alternatively, you can use [`debugonce()`](https://rdrr.io/r/base/debug.html) to browse only on the next run.
+
+## Non interactive debugging
+
+-   **print debugging** is where you insert numerous print statements to precisely locate the problem, and see the values of important variables
+
+    -   Use `cat()` or `message()`
+
+-   For Rmd files, switch to calling `rmarkdown::render("path/to/file.Rmd")` instead. This runs the code in the current session, which makes it easier to debug.
+
+# Concepts
+
+-   overall debugging approach
+
+-   interactive debugger
+
+    -   browser()
+
+    -   rerun with debug
+
+    -   breakpoints
+
+-   debug()
+
+-   print debugging
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises
