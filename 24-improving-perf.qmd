@@ -1,0 +1,66 @@
+---
+title: "24-improving-performance"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+## On optimizing
+
+- Be pragmatic: don’t spend hours of your time to save seconds of computer time
+
+## Code organization
+
+- When dealing with a bottleneck, you're prob gonna come up with multiple approaches. Create a function for each approach and compare them.
+  - Keep a record of everything you've tried. Use R markdown to do this and intermingle code with comments or notes.
+- Create a representative test case
+  - Make sure it's not too big or too small.
+- Use `bench::mark()` to compare them.
+
+```{r}
+mean1 <- function(x) mean(x)
+mean2 <- function(x) sum(x) / length(x)
+x <- runif(1e5)
+bench::mark(
+  mean1(x),
+  mean2(x)
+)[c("expression", "min", "median", "itr/sec", "n_gc")]
+#> # A tibble: 2 x 4
+#>   expression      min   median `itr/sec`
+#>   <bch:expr> <bch:tm> <bch:tm>     <dbl>
+#> 1 mean1(x)      162µs    176µs     5571.
+#> 2 mean2(x)      190µs    202µs     4914.
+```
+
+## Check for existing solutions
+
+- Use [CRAN task views](http://cran.rstudio.com/web/views/)
+- Use Reverse dependencies of Rcpp
+- Read widely so that you can build up your own vocabulary over time. This will make it easier to search for a solution.
+  - Search using [rseek](https://rseek.org/)
+
+## Do as little as possible
+
+- Easiest way to make a function faster is to let it do less work. Use a function more tailored to a specific problem or type of input or output.
+- Some functions will do less work if you give them more information about the problem by using different arguments and reading documentation.
+  - Sometimes you can buy speed at the cost of safety.
+- Often you'll need to read the source code and make improvements.
+
+## Vectorization
+
+- Vectorising is about taking a whole-object approach to a problem, thinking about vectors, not scalars
+  - Loops in a vectorised function are written in C instead of R. Loops in C are much faster because they have much less overhead
+- It means finding the existing R function that is implemented in C and most closely applies to your problem
+- Vectorisation does have a downside. It is harder to predict how operations will scale.
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises
