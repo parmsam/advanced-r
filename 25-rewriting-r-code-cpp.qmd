@@ -7,6 +7,115 @@ editor_options:
 
 # General
 
+## Using Rcpp
+
+- `cppFunction()` allows you to write C++ functions in R.
+  - Rcpp will compile the C++ code and construct an R function that connects to the compiled C++ function.
+  
+```{r}
+cppFunction('int add(int x, int y, int z) {
+  int sum = x + y + z;
+  return sum;
+}')
+# add works like a regular R function
+add
+#> function (x, y, z) 
+#> .Call(<pointer: 0x107536a00>, x, y, z)
+add(1, 2, 3)
+#> [1] 6
+```
+
+### No inputs, scalar output
+
+- Simple function with no arguments that always returns a scalar integer:
+  - You must declare the type of output the function returns
+  - Scalar equivalents of numeric, integer, character, and logical vectors are: `double`, `int`, `String`, and `bool`
+  - Must use an explicit return statement to return a value from a function
+
+```{r}
+cppFunction('int one() {
+  return 1;
+}')
+one()
+```
+
+### Scalar input, scalar output
+
+- We declare the type of each input in the same way we declare the type of the output
+
+```{r}
+cppFunction('int signC(int x) {
+  if (x > 0) {
+    return 1;
+  } else if (x == 0) {
+    return 0;
+  } else {
+    return -1;
+  }
+}')
+signC(-5)
+signC(0)
+signC(10)
+```
+
+### Vector input, scalar output
+
+- Cost of loops is much lower in C++. Loops have very little overhead, so it’s fine to use them. Whereas, in R they'd be bad.
+  - IN C++, VECTOR INDICES START AT 0
+  - Use = for assignment, not <-
+  - C++ provides operators that modify in-place, R doesn't
+
+```{r}
+cppFunction('double sumC(NumericVector x) {
+  int n = x.size();
+  double total = 0;
+  for(int i = 0; i < n; ++i) {
+    total += x[i];
+  }
+  return total;
+}')
+sumC(c(1, 2, 3, 4))
+```
+
+### Vector input, vector output
+
+- Function to calc Euclidean distance between a value and a vector of values
+  - We create a new numeric vector of length n with a constructor: NumericVector out(n)
+  - C++ uses pow(), not ^, for exponentiation
+- The reason why the C++ function is faster is subtle, and relates to memory management
+
+```{r}
+cppFunction('NumericVector pdistC(double x, NumericVector ys) {
+  int n = ys.size();
+  NumericVector out(n);
+
+  for(int i = 0; i < n; ++i) {
+    out[i] = sqrt(pow(ys[i] - x, 2.0));
+  }
+  return out;
+}')
+```
+
+### Using sourceCpp
+
+- It’s usually easier to use stand-alone C++ files and then source them into R using `sourceCpp()`
+  - This lets you take advantage of text editor support for C++ files (e.g., syntax highlighting) and makes it easier to identify the line numbers in compilation errors.
+- Stand-alone C++ file should have extension `.cpp`
+They also need to start with:
+
+```md
+#include <Rcpp.h>
+using namespace Rcpp;
+```
+
+And each function that you want available within R, you need to prefix it with: `// [[Rcpp::export]]`
+
+
+
+
+
+
+
 # Concepts
 
 # Useful functions

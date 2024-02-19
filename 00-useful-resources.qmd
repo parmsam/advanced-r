@@ -1,0 +1,31 @@
+---
+title: "00-useful-resources"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+- R Inferno by Patrick Burns - [here](https://www.burns-stat.com/documents/books/the-r-inferno/)
+
+## Algorithms at MIT
+- MIT’s Introduction to Algorithms - [here](https://ocw.mit.edu/courses/6-046j-introduction-to-algorithms-sma-5503-fall-2005/)
+
+## Algorithms at Princeton University
+- Algorithms Princeton Courses [Part 1](https://www.coursera.org/learn/algorithms-part1) and [Part 2](https://www.coursera.org/learn/algorithms-part2)
+- Algorithms by Robert Sedgewick and Kevin Wayne - [here](https://algs4.cs.princeton.edu/home/)
+
+## C++
+- LearnCpp [here](https://www.learncpp.com/)
+
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises

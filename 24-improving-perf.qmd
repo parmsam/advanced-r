@@ -55,6 +55,11 @@ bench::mark(
 - It means finding the existing R function that is implemented in C and most closely applies to your problem
 - Vectorisation does have a downside. It is harder to predict how operations will scale.
 
+## Avoiding copies
+
+- Beware when objects are copied in R to create a bigger object. R needs to allocate space for the new object and copy the old object into the new space. 
+- This can get expensive fast.
+
 # Concepts
 
 # Useful functions
