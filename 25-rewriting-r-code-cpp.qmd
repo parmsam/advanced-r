@@ -110,11 +110,35 @@ using namespace Rcpp;
 
 And each function that you want available within R, you need to prefix it with: `// [[Rcpp::export]]`
 
+### Functions
 
+- You can put R functions in an object of type Function
 
+```md
+#include <Rcpp.h>
+using namespace Rcpp;
 
+// [[Rcpp::export]]
+RObject callWithOne(Function f) {
+  return f(1);
+}
+callWithOne(function(x) x + 1)
+#> [1] 2
+callWithOne(paste)
+#> [1] "1"
+```
 
+### Booleans
 
+- C++’s bool has two possible values (true or false)
+- A logical vector in R has three (TRUE, FALSE, and NA).
+- If you coerce a length 1 logical vector, make sure it doesn’t contain any missing values
+  - otherwise they will be converted to TRUE
+
+## Standard Template Library
+
+- The standard template library (STL) provides a set of extremely useful data structures and algorithms.
+- Alternatively, is the boost cpp library that might be useful.
 
 # Concepts
 
