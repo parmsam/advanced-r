@@ -1,0 +1,37 @@
+---
+title: "20-evaluation"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# General
+
+## Evaluation intro
+
+- `eval()` evaluates an expression in an environment
+- a quosure is a data structure that captures an expression along with its associated environment, as found in function arguments
+- a data mask makes it easier to evaluate an expression in the context of a data frame
+- quasiquotation, quosures, and data masks form what we call **tidy evaluation**
+
+## How eval() works
+
+- `eval()` has two arguments `expr` and `envir`:
+  - the object to evaluate, typically a symbol or expression
+    - this first argument is evaluated, not quoted
+  - and the environment in which the expression should be evaluated
+    - by default, this is the current environment, i.e. the calling environment
+  
+
+  
+
+
+# Concepts
+
+# Useful functions
+
+```{r}
+
+```
+
+# Exercises
