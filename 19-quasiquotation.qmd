@@ -8,7 +8,64 @@ editor_options:
 
 # General
 
-- 
+## Quasiquotation
+
+- Quotation is the act of capturing an unevaluated expression
+- unquotation is the ability to selectively evaluate parts of an otherwise quoted expression
+- together, this is called quasiquotation
+  - it makes it easier to combine code written by the function’s author with code written by the function’s user
+  
+## Unquoting
+
+- Quasiquotation gives us a standard tool to remove the automatic quote marks: !!, called “unquote”, and pronounced bang-bang
+
+```{r}
+library(rlang)
+cement <- function(...) {
+  args <- ensyms(...)
+  paste(purrr::map(args, as_string), collapse = " ")
+}
+name <- "Hadley"
+time <- "morning"
+cement(Good, !!time, !!name)
+#> [1] "Good morning Hadley"
+```
+
+## Quoted vs evaluated
+
+- An evaluated argument obeys R’s usual evaluation rules.
+- A quoted argument is captured by the function, and is processed in some custom way.
+- If you’re ever unsure about whether an argument is quoted or evaluated, try executing the code outside of the function. 
+  - If it doesn’t work or does something different, then that argument is quoted.
+
+## Capturing expressions
+
+- `expr()` captures its argument exactly as provided. White space and comments are not part of the expression.
+- `enexpr()` captures what the caller supplied to the function by looking at the internal promise object that powers lazy evaluation. It also doesn't capture white space and comments.
+- The base R equivalents do not support unquoting.
+
+## Unquoting
+
+- Unquoting is one inverse of quoting. It allows you to selectively evaluate code inside `expr()`.
+- This means that `expr(!!x)` is equivalent to `x`
+- Use `!!` to unquote a single argument in a function call. 
+  - `!!` takes a single expression, evaluates it, and inlines the result in the AST. It also works with symbols and constants
+  - `!!` preserves operator precedence because it works with expressions.
+
+## Unquoting many arguments
+
+- `!!!` (called “unquote-splice”, and pronounced bang-bang-bang) is a one-to-many replacement. It takes a list of expressions and inserts them at the location.
+
+```{r}
+xs <- exprs(1, a, -b)
+expr(f(!!!xs, y))
+#> f(1, a, -b, y)
+
+# Or with names
+ys <- set_names(xs, c("a", "b", "c"))
+expr(f(!!!ys, d = 4))
+#> f(a = 1, b = a, c = -b, d = 4)
+```
 
 # Concepts
 
