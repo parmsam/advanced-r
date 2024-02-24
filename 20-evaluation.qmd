@@ -14,7 +14,7 @@ editor_options:
 - a data mask makes it easier to evaluate an expression in the context of a data frame
 - quasiquotation, quosures, and data masks form what we call **tidy evaluation**
 
-## How eval() works
+## How `eval()` works
 
 - `eval()` has two arguments `expr` and `envir`:
   - the object to evaluate, typically a symbol or expression
@@ -22,8 +22,88 @@ editor_options:
   - and the environment in which the expression should be evaluated
     - by default, this is the current environment, i.e. the calling environment
   
+## Using `local()`
+
+- Intermediate variables have no long-term use and could be quite large, so you’d rather not keep them around. 
+- One approach is to clean up after yourself using rm(); another is to wrap the code in a function and just call it once. A more elegant approach is to use local().
+
+```{r}
+# Clean up variables created earlier
+rm(x, y)
+
+foo <- local({
+  x <- 10
+  y <- 200
+  x + y
+})
+
+foo
+#> [1] 210
+x
+#> Error in eval(expr, envir, enclos): object 'x' not found
+y
+#> Error in eval(expr, envir, enclos): object 'y' not found
+```
 
   
+## Quosures
+
+- there isn't a data structure that can hold both an expression and an environment
+- rlang fills the gap with the quosure, an object that contains an expression and an environment
+  - the name is a portmanteau of quoting and closure, because a quosure both quotes the expression and encloses the environment
+- three ways to create quosures:  `enquo()`, `quo()`, and `new_quosure()`
+
+```{r}
+## enquo() and enquos() to capture user-supplied expressions
+## vast majority of quosures should be created this way
+foo <- function(x) enquo(x)
+foo(a + b)
+#> <quosure>
+#> expr: ^a + b
+#> env:  global
+## quo() and quos() exist to match to expr() and exprs() 
+## used very rarely
+quo(x + y + z)
+#> <quosure>
+#> expr: ^x + y + z
+#> env:  global
+## new_quosure() create a quosure from its components: an expression and an environment
+## also rarely needed in practice
+new_quosure(expr(x + y), env(x = 1, y = 10))
+#> <quosure>
+#> expr: ^x + y
+#> env:  0x7fac62d44870
+```
+
+## Evaluating quosures
+
+- Quosures are paired with a new evaluation function `eval_tidy()` that takes a single quosure instead of an expression-environment pair
+
+```{r}
+q1 <- new_quosure(expr(x + y), env(x = 1, y = 10))
+eval_tidy(q1)
+#> [1] 11
+```
+
+## Data masks
+
+- Data mask is a data frame where the evaluated code will look first for variable definitions
+- It allows you to mingle variables from an environment and a data frame in a single expression
+
+```{r}
+q1 <- new_quosure(expr(x * y), env(x = 100))
+df <- data.frame(y = 1:10)
+
+eval_tidy(q1, df)
+#>  [1]  100  200  300  400  500  600  700  800  900 1000
+#>  
+```
+
+## Data mask pronouns
+
+- data mask provides two pronouns: .data and .env.:
+  - .data$x always refers to x in the data mask.
+  - .env$x always refers to x in the environment
 
 
 # Concepts
